@@ -1,1 +1,9 @@
 */build/
+*.DS_Store
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Debug/
+cmake_install.cmake
+leptjson_test.build/
+leptjson_test.xcodeproj/
