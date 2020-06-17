@@ -80,6 +80,9 @@ static void test_parse() {
     test_parse_false();
 }
 
+/*因为 static 函数的意思是指，该函数只作用于编译单元中，那么没有被调用时，编译器是能发现的。*/
+
+
 int main() {
     test_parse();
     printf("%d/%d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
