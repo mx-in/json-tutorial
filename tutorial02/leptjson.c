@@ -4,6 +4,9 @@
 
 #define EXPECT(c, ch)       do { assert(*c->json == (ch)); c->json++; } while(0)
 
+#define ISDIGIT(ch)         ((ch) >= '0' && (ch) <= '9')
+#define ISDIGIT1TO9(ch)     ((ch) >= '1' && (ch) <= '9')
+
 typedef struct {
     const char* json;
 }lept_context;
@@ -73,7 +76,21 @@ static int lept_parse_literal(lept_context* c, lept_value* v) {
 
 static int lept_parse_number(lept_context* c, lept_value* v) {
     char* end;
+    int i;
     /* \TODO validate number */
+    
+    if (c->json[0] != '-' && !ISDIGIT1TO9(c->json[0])) {
+        return LEPT_PARSE_INVALID_VALUE;
+    }
+    
+    i = 1;
+    while (c->json[i] != '\0') {
+        if (c->json[i] == '.' && !ISDIGIT(c->json[i+1])) {
+            return LEPT_PARSE_INVALID_VALUE;
+        }
+        i++;
+    }
+    
     v->n = strtod(c->json, &end);
     if (c->json == end)
         return LEPT_PARSE_INVALID_VALUE;
