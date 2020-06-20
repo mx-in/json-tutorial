@@ -1,6 +1,7 @@
 #include "leptjson.h"
 #include <assert.h>  /* assert() */
 #include <stdlib.h>  /* NULL, strtod() */
+#include <errno.h>
 
 #define EXPECT(c, ch)       do { assert(*c->json == (ch)); c->json++; } while(0)
 
@@ -76,6 +77,10 @@ static int lept_parse_literal(lept_context* c, lept_value* v) {
 
 static int lept_set_tod_result(lept_context* c, lept_value* v, int j_offset) {
     v->n = strtod(c->json, NULL);
+    if (errno == ERANGE) {
+        errno = 0;
+        return LEPT_PARSE_NUMBER_TOO_BIG;
+    }
     c->json += j_offset;
     v->type = LEPT_NUMBER;
     return LEPT_PARSE_OK;
