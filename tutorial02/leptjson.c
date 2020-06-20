@@ -74,6 +74,13 @@ static int lept_parse_literal(lept_context* c, lept_value* v) {
     return LEPT_PARSE_INVALID_VALUE;
 }
 
+static int lept_set_tod_result(lept_context* c, lept_value* v, int j_offset) {
+    v->n = strtod(c->json, NULL);
+    c->json += j_offset;
+    v->type = LEPT_NUMBER;
+    return LEPT_PARSE_OK;
+}
+
 static int lept_parse_number(lept_context* c, lept_value* v) {
     int i;
 
@@ -89,44 +96,52 @@ static int lept_parse_number(lept_context* c, lept_value* v) {
     }
 
     /*0 follow check*/
-    if (!ISDIGIT1TO9(c->json[i])) {
+    if (c->json[i] == '0') {
         if (c->json[i+1] != '\0' && c->json[i+1] != '.' && c->json[i+1] != 'e' && c->json[i+1] != 'E') {
             i += 1;
-            v->n = strtod(c->json, NULL);
-            c->json += i;
-            v->type = LEPT_NUMBER;
-            return LEPT_PARSE_OK;
+            return lept_set_tod_result(c, v, i);
         }
     }
     
     while (c->json[i] != '\0') {
-        if (!ISDIGIT(c->json[i])) {
-            
-            /* . follow check */
-            if (c->json[i] == '.' && !ISDIGIT(c->json[i+1])) {
+        
+        /* . follow check */
+        if (c->json[i] == '.') {
+            if (!ISDIGIT(c->json[i+1])) {
                 return LEPT_PARSE_INVALID_VALUE;
+            } else {
+                i++;
+                while (ISDIGIT(c->json[i])) {
+                    i++;
+                }
+                if (c->json[i] != 'e' && c->json[i] != 'E') {
+                    break;
+                }
             }
-            
-            /* e follow check */
-//            if (c->json[i] == 'e' || c->json[i] == 'E') {
-//                if (c->json[i+1] != '-' || c->json[i+1] != '+') {
-//                    if(!ISDIGIT(c->json[i+2])) {
-//                        return LEPT_PARSE_INVALID_VALUE;
-//                    }
-//                } else {
-//                    if(!ISDIGIT(c->json[i+1])) {
-//                        return LEPT_PARSE_INVALID_VALUE;
-//                    }
-//                }
-//            }
+        }
+        
+        /* e follow check */
+        if (c->json[i] == 'e' || c->json[i] == 'E') {
+            if (c->json[i+1] != '-' && c->json[i+1] != '+') {
+                i += 1;
+                if(!ISDIGIT(c->json[i])) {
+                    return LEPT_PARSE_INVALID_VALUE;
+                }
+            } else {
+                i += 2;
+                if(!ISDIGIT(c->json[i])) {
+                    return LEPT_PARSE_INVALID_VALUE;
+                }
+            }
+            while (ISDIGIT(c->json[i])) {
+                i++;
+            }
+            break;
         }
         i++;
     }
     
-    v->n = strtod(c->json, NULL);
-    c->json += i;
-    v->type = LEPT_NUMBER;
-    return LEPT_PARSE_OK;
+    return lept_set_tod_result(c, v, i);
 }
 
 static int lept_parse_value(lept_context* c, lept_value* v) {

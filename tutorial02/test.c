@@ -104,6 +104,7 @@ static void test_parse_invalid_value() {
     TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "inf");
     TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "NAN");
     TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "nan");
+    TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "0.123e");
 }
 
 static void test_parse_root_not_singular() {
@@ -114,6 +115,8 @@ static void test_parse_root_not_singular() {
     TEST_ERROR(LEPT_PARSE_ROOT_NOT_SINGULAR, "0x0");
     TEST_ERROR(LEPT_PARSE_ROOT_NOT_SINGULAR, "0x123");
     TEST_ERROR(LEPT_PARSE_ROOT_NOT_SINGULAR, "0.123.");
+    TEST_ERROR(LEPT_PARSE_ROOT_NOT_SINGULAR, "0.123e123e");
+    TEST_ERROR(LEPT_PARSE_ROOT_NOT_SINGULAR, "0.123.123e");
 }
 
 static void test_parse_number_too_big() {
